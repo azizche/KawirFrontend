@@ -1,20 +1,30 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:http/http.dart';
+
 import 'package:kawir/common/theme.dart';
 import 'package:kawir/common/usefulfunctions.dart';
 import 'package:kawir/core/Field.dart';
 import 'package:kawir/core/match.dart';
 import 'package:kawir/screens/signInUp/components/custombutton.dart';
 
+import '../../../core/User.dart';
+
 class FieldItem extends StatelessWidget {
   final Field field;
-  const FieldItem({super.key, required this.field});
+  User user;
+  FieldItem({
+    Key? key,
+    required this.field,
+    required this.user,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () => showDialog(
-          context: context, builder: (context) => builddialog(context)),
+          context: context, builder: (context) => builddialog(context, user)),
       child: Container(
           margin: EdgeInsets.only(bottom: 10),
           padding: const EdgeInsets.all(8),
@@ -26,7 +36,7 @@ class FieldItem extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Image.asset(
-                imagepath + '/field.jpg',
+                imagepath + 'field.jpg',
                 width: 250 - 16,
                 fit: BoxFit.fitWidth,
               ),
@@ -52,7 +62,7 @@ class FieldItem extends StatelessWidget {
                   Row(
                     children: [
                       Image.asset(
-                        imagepath + '/jersey.png',
+                        imagepath + 'jersey.png',
                         width: 20,
                         height: 30,
                       ),
@@ -76,7 +86,7 @@ class FieldItem extends StatelessWidget {
     );
   }
 
-  builddialog(context) {
+  builddialog(context, User user) {
     return Container(
         margin: EdgeInsets.only(bottom: 10),
         padding: const EdgeInsets.all(8),
@@ -88,7 +98,7 @@ class FieldItem extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Image.asset(
-              imagepath + '/field.jpg',
+              imagepath + 'field.jpg',
               width: getsize(context).width - 8,
               fit: BoxFit.fitWidth,
             ),
@@ -122,7 +132,7 @@ class FieldItem extends StatelessWidget {
                 Row(
                   children: [
                     Image.asset(
-                      imagepath + '/jersey.png',
+                      imagepath + 'jersey.png',
                       width: 30,
                       height: 40,
                     ),
@@ -161,11 +171,38 @@ class FieldItem extends StatelessWidget {
                 ),
                 addverticalspace(10),
                 GestureDetector(
-                    onTap: () {},
+                    onTap: () async {
+                      Response response = await http.put(
+                          Uri.parse(
+                              'http://10.0.2.2:3000/user/${user.id}/reserve'),
+                          body: {
+                            'start': DateTime.now().toString(),
+                            'finish': DateTime.now()
+                                .add(Duration(minutes: field.durationInMinutes))
+                                .toString(),
+                            'field': field.id,
+                          });
+                      showsomrthing(
+                          'Match Succesfully booked', context, Colors.red);
+                      print(response.body);
+                      print('yeey');
+                    },
                     child: CustomButton(text: 'Book now!', sidepadding: 22.0))
               ],
             ),
           ],
         ));
   }
+}
+
+showsomrthing(message, context, color) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        backgroundColor: color,
+        content: Text(message),
+      );
+    },
+  );
 }

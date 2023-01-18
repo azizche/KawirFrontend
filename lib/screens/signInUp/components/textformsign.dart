@@ -55,7 +55,7 @@ class CustomTextField extends StatelessWidget {
           return null;
         },
         controller: controller,
-        obscureText: ispassword,
+        obscureText: hintText == 'Password',
         decoration: InputDecoration(
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),

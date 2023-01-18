@@ -32,9 +32,15 @@ class _HomePageState extends State<HomePage> {
             currentindex = value;
           },
           children: [
-            MatchsPage(),
-            FieldsPage(),
-            ProfilePage(),
+            MatchsPage(
+              user: widget.user,
+            ),
+            FieldsPage(
+              user: widget.user,
+            ),
+            ProfilePage(
+              user: widget.user,
+            ),
           ]),
       bottomNavigationBar: BottomNavigationBar(
           iconSize: 30,

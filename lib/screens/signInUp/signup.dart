@@ -1,10 +1,15 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 import 'package:kawir/common/usefulfunctions.dart';
 import 'package:kawir/core/User.dart';
+import 'package:kawir/screens/home/homepage.dart';
 import 'package:kawir/screens/signInUp/components/custombutton.dart';
 import 'package:kawir/screens/signInUp/components/textformsign.dart';
 import 'package:kawir/screens/signInUp/signinpageformat.dart';
+import 'package:http/http.dart' as http;
 
 class SignUpPage extends StatelessWidget {
   const SignUpPage({super.key});
@@ -66,13 +71,44 @@ class SignUpPage extends StatelessWidget {
         ),
         addverticalspace(10),
         GestureDetector(
-            onTap: () {
-              formkey.currentState!.validate();
-              User user = User(
-                  email: emailcontroller.text,
-                  phonenumber: int.parse(phonenumbercontroller.text),
-                  name: phonenumbercontroller.text,
-                  lastname: lastnamecontroller.text);
+            onTap: () async {
+              if (formkey.currentState!.validate()) {
+                Response response = await http.post(
+                    Uri.parse('http://10.0.2.2:3000/auth/register'),
+                    body: {
+                      'firstname': namecontroller.text,
+                      'password': passwordcontroller.text,
+                      'email': emailcontroller.text,
+                      'lastname': lastnamecontroller.text,
+                      'phonenumber': phonenumbercontroller.text,
+                    });
+                if (response.statusCode == 200) {
+                  print(response.body);
+                } else {
+                  print(response.body);
+                }
+                Response responsita = await http
+                    .post(Uri.parse('http://10.0.2.2:3000/auth/login'), body: {
+                  'email': emailcontroller.text,
+                  'password': passwordcontroller.text,
+                });
+                print(responsita.body);
+                if (responsita.statusCode == 201) {
+                  final data = json.decode(responsita.body);
+                  User user = User(
+                    id: data['id'].toString(),
+                    name: data['firstname'],
+                    email: data['email'],
+                    lastname: data['lastname'] ?? '',
+                    phonenumber: int.parse(data['phonenumber']),
+                  );
+
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: ((context) => HomePage(user: user))));
+                }
+              }
             },
             child: CustomButton(text: 'Sign un', sidepadding: 40.0)),
         addverticalspace(10),
